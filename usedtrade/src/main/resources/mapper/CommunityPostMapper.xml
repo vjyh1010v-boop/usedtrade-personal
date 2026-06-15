@@ -1,0 +1,143 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.pknu26.usedtrade.mapper.CommunityPostMapper">
+
+    <insert id="insertCommunityPost" parameterType="com.pknu26.usedtrade.dto.CommunityPostDTO">
+        <selectKey keyProperty="communityPostId" resultType="long" order="BEFORE">
+            SELECT seq_community_post_id.NEXTVAL FROM dual
+        </selectKey>
+
+        INSERT INTO community_posts (
+            community_post_id,
+            user_id,
+            title,
+            content,
+            category,
+            view_count,
+            created_at
+        ) VALUES (
+            #{communityPostId},
+            #{userId},
+            #{title},
+            #{content},
+            #{category},
+            0,
+            CURRENT_TIMESTAMP
+        )
+    </insert>
+
+    <select id="findCommunityPostById" parameterType="long" resultType="com.pknu26.usedtrade.dto.CommunityPostDTO">
+        SELECT
+            cp.community_post_id,
+            cp.user_id,
+            cp.title,
+            cp.content,
+            cp.category,
+            cp.view_count,
+            cp.created_at,
+            cp.updated_at,
+            u.nickname,
+            img.image_url AS main_image_url
+        FROM community_posts cp
+        JOIN users u ON cp.user_id = u.user_id
+        LEFT JOIN post_img img
+            ON cp.community_post_id = img.community_post_id
+           AND img.is_main = 'Y'
+        WHERE cp.community_post_id = #{communityPostId}
+    </select>
+
+    <update id="incrementViewCount" parameterType="long">
+        UPDATE community_posts
+        SET view_count = view_count + 1
+        WHERE community_post_id = #{communityPostId}
+    </update>
+
+    <delete id="deleteCommunityPost" parameterType="long">
+        DELETE FROM community_posts WHERE community_post_id = #{communityPostId}
+    </delete>
+
+    <update id="updateCommunityPost" parameterType="com.pknu26.usedtrade.dto.CommunityPostDTO">
+        UPDATE community_posts
+        SET title      = #{title},
+            content    = #{content},
+            category   = #{category},
+            updated_at = CURRENT_TIMESTAMP
+        WHERE community_post_id = #{communityPostId}
+    </update>
+
+    <select id="findAllCommunityPosts" resultType="com.pknu26.usedtrade.dto.CommunityPostDTO">
+        SELECT
+            cp.community_post_id,
+            cp.user_id,
+            cp.title,
+            cp.content,
+            cp.category,
+            cp.view_count,
+            cp.created_at,
+            cp.updated_at,
+            u.nickname,
+            img.image_url AS main_image_url,
+            (SELECT COUNT(*) FROM community_post_likes l
+             WHERE l.community_post_id = cp.community_post_id) AS like_count
+        FROM community_posts cp
+        JOIN users u ON cp.user_id = u.user_id
+        LEFT JOIN post_img img
+            ON cp.community_post_id = img.community_post_id
+           AND img.is_main = 'Y'
+        ORDER BY cp.created_at DESC
+    </select>
+
+    <select id="findCommunityPostsPaged" resultType="com.pknu26.usedtrade.dto.CommunityPostDTO">
+        SELECT
+            cp.community_post_id,
+            cp.user_id,
+            cp.title,
+            cp.content,
+            cp.category,
+            cp.view_count,
+            cp.created_at,
+            cp.updated_at,
+            u.nickname,
+            img.image_url AS main_image_url,
+            (SELECT COUNT(*) FROM community_post_likes l
+             WHERE l.community_post_id = cp.community_post_id) AS like_count
+        FROM community_posts cp
+        JOIN users u ON cp.user_id = u.user_id
+        LEFT JOIN post_img img
+            ON cp.community_post_id = img.community_post_id
+           AND img.is_main = 'Y'
+        <where>
+            <if test="category != null and category != 'ALL'">
+                cp.category = #{category}
+            </if>
+        </where>
+        ORDER BY
+        <choose>
+            <when test="sort == 'LIKES'">
+                (SELECT COUNT(*) FROM community_post_likes l
+                 WHERE l.community_post_id = cp.community_post_id) DESC
+            </when>
+            <when test="sort == 'VIEWS'">
+                cp.view_count DESC
+            </when>
+            <otherwise>
+                cp.created_at DESC
+            </otherwise>
+        </choose>
+        OFFSET #{offset} ROWS FETCH NEXT #{limit} ROWS ONLY
+    </select>
+
+    <select id="countCommunityPosts" resultType="int">
+        SELECT COUNT(*)
+        FROM community_posts cp
+        <where>
+            <if test="category != null and category != 'ALL'">
+                cp.category = #{category}
+            </if>
+        </where>
+    </select>
+
+</mapper>

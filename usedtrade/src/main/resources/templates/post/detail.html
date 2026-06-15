@@ -1,0 +1,168 @@
+<!doctype html>
+<html
+  lang="ko"
+  xmlns:th="http://www.thymeleaf.org"
+  xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+  th:replace="~{layout :: layout(~{::content}, ~{::pageScripts})}"
+>
+  <th:block th:fragment="content">
+    <div class="app">
+      <div class="wrap">
+        <div id="detailStatus" class="status-box hidden"></div>
+
+        <section class="post-detail-page">
+          <div class="detail-top">
+            <a href="/" class="small-button">← 목록으로</a>
+          </div>
+
+          <article class="detail-card">
+            <section class="detail-image-area">
+              <div id="mainImageBox" class="detail-main-image">
+                <span>이미지 불러오는 중...</span>
+              </div>
+
+              <div id="thumbnailList" class="detail-thumbnail-list"></div>
+            </section>
+
+            <section class="detail-info-area">
+              <div class="detail-category" id="postCategory">카테고리</div>
+
+              <h2 id="postTitle">상품명</h2>
+
+              <strong id="postPrice" class="detail-price">0원</strong>
+
+              <div class="detail-meta">
+                <span id="postLocation">거래 지역</span>
+                <span id="postStatus" class="product-status selling"
+                  >판매중</span
+                >
+              </div>
+
+              <div class="detail-sub-meta">
+                <span id="postCreatedAt">등록일</span>
+                <span id="postViewCount">조회수 0</span>
+              </div>
+
+              <!-- 작성자 전용 영역 -->
+              <div id="ownerControls" class="owner-controls hidden">
+                <div class="owner-action-row">
+                  <label for="statusSelect">판매 상태</label>
+
+                  <select id="statusSelect">
+                    <option value="SELLING">판매중</option>
+                    <option value="RESERVED">예약중</option>
+                    <option value="SOLD">판매완료</option>
+                  </select>
+
+                  <button
+                    type="button"
+                    id="statusUpdateButton"
+                    class="small-button"
+                  >
+                    상태 변경
+                  </button>
+
+                  <button
+                    type="button"
+                    id="editPostButton"
+                    class="small-button"
+                  >
+                    수정
+                  </button>
+
+                  <button
+                    type="button"
+                    id="deletePostButton"
+                    class="small-button danger"
+                  >
+                    삭제
+                  </button>
+                </div>
+              </div>
+
+              <hr />
+
+              <div class="detail-content">
+                <h3>상품 설명</h3>
+                <p id="postContent"></p>
+              </div>
+            </section>
+          </article>
+        </section>
+
+        <!-- 게시글 수정 모달 -->
+        <div id="editPostModal" class="modal hidden">
+          <div class="modal-card">
+            <div class="modal-header">
+              <h2>게시글 수정</h2>
+              <button type="button" id="closeEditModalButton">×</button>
+            </div>
+
+            <form id="editPostForm" class="product-form">
+              <label class="row">
+                <span>상품명</span>
+                <input
+                  type="text"
+                  id="editTitle"
+                  placeholder="상품명을 입력하세요"
+                />
+              </label>
+
+              <label class="row">
+                <span>가격</span>
+                <input
+                  type="number"
+                  id="editPrice"
+                  placeholder="가격을 입력하세요"
+                />
+              </label>
+
+              <label class="row">
+                <span>카테고리</span>
+                <select id="editCategory">
+                  <option value="DIGITAL">디지털기기</option>
+                  <option value="FURNITURE">가구</option>
+                  <option value="CLOTHES">의류</option>
+                  <option value="BOOK">도서</option>
+                  <option value="ETC">기타</option>
+                </select>
+              </label>
+
+              <label class="row">
+                <span>거래 지역</span>
+                <input
+                  type="text"
+                  id="editLocation"
+                  placeholder="예: 부산 남구"
+                />
+              </label>
+
+              <label class="row">
+                <span>상품 설명</span>
+                <textarea
+                  id="editContent"
+                  placeholder="상품 설명을 입력하세요"
+                ></textarea>
+              </label>
+
+              <div class="button-group">
+                <button type="submit" class="search-button">수정 완료</button>
+                <button
+                  type="button"
+                  id="cancelEditModalButton"
+                  class="small-button"
+                >
+                  취소
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  </th:block>
+
+  <th:block th:fragment="pageScripts">
+    <script src="/js/detail.js"></script>
+  </th:block>
+</html>

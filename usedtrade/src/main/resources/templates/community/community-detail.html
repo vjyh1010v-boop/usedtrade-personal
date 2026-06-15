@@ -1,0 +1,149 @@
+<!doctype html>
+<html
+  lang="ko"
+  xmlns:th="http://www.thymeleaf.org"
+  xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+  th:replace="~{layout :: layout(~{::content}, ~{::pageScripts})}">
+  <th:block th:fragment="content">
+    <div class="app">
+      <div class="wrap">
+
+        <section class="section-header">
+          <div>
+            <a th:href="@{/community}" id="backLink" class="small-button">← 목록으로</a>
+          </div>
+        </section>
+
+        <article class="post-detail" th:attr="data-post-id=${post.communityPostId}">
+          <header class="post-detail-header">
+            <div class="post-detail-title-row">
+              <span th:class="|product-status category-${#strings.toLowerCase(post.category)}|"
+                    th:text="${post.category == 'FREE' ? '자유게시판' :
+                               post.category == 'LOCAL' ? '동네정보' :
+                               post.category == 'REVIEW' ? '거래후기' :
+                               post.category == 'QNA' ? '질문게시판' :
+                               post.category}"></span>
+              <!-- 작성자 본인에게만 수정/삭제 버튼 표시 -->
+              <div sec:authorize="isAuthenticated()"
+                   th:if="${#authentication.principal.user.userId == post.userId}"
+                   class="post-actions">
+                <button type="button" id="openEditButton" class="btn-secondary">수정</button>
+                <button type="button" id="deleteButton" class="btn-danger">삭제</button>
+              </div>
+            </div>
+            <h2 th:text="${post.title}"></h2>
+            <div class="post-meta">
+              <span th:text="${post.nickname}"></span>
+              <span>·</span>
+              <small th:text="${#strings.substring(post.createdAt.toString(), 0, 10)}"></small>
+              <span>·</span>
+              <small>조회 <span th:text="${post.viewCount}"></span></small>
+            </div>
+
+            <div class="post-like">
+              <button sec:authorize="isAuthenticated()"
+                      id="likeButton"
+                      class="like-btn"
+                      th:classappend="${isLiked} ? ' liked'">
+                👍 추천 <span id="likeCount" th:text="${likeCount}">0</span>
+              </button>
+              <span sec:authorize="!isAuthenticated()" class="like-display">
+                👍 추천 <span th:text="${likeCount}">0</span>
+              </span>
+            </div>
+          </header>
+
+          <div th:if="${images != null and !images.isEmpty()}" class="community-images">
+            <div id="communityMainImage" class="detail-main-image">
+              <img th:src="${images[0].imageUrl}" th:alt="${post.title}" />
+            </div>
+            <div class="detail-thumbnail-list" th:if="${images.size() > 1}">
+              <button th:each="img : ${images}" type="button" class="detail-thumbnail"
+                      th:attr="data-src=${img.imageUrl}">
+                <img th:src="${img.imageUrl}" th:alt="${img.originalName}" />
+              </button>
+            </div>
+          </div>
+          <hr>
+          <div class="post-content" th:text="${post.content}"></div>
+        </article>
+
+        <!-- 댓글 섹션 -->
+        <section class="comment-section">
+          <h3 class="comment-title">댓글 <span id="commentCount">0</span>개</h3>
+
+          <div id="commentList"></div>
+
+          <!-- 로그인된 모든 사용자: 댓글 작성 가능 -->
+          <div sec:authorize="isAuthenticated()"
+               id="commentFormWrapper"
+               th:attr="data-user-id=${#authentication.principal.user.userId}">
+            <form id="commentForm" class="comment-form">
+              <textarea id="commentContent" placeholder="댓글을 입력하세요" rows="3"></textarea>
+              <button type="submit">등록</button>
+            </form>
+          </div>
+
+          <!-- 비로그인: 안내 메시지 -->
+          <div sec:authorize="!isAuthenticated()" class="comment-login-notice">
+            <a th:href="@{/users/login}">로그인</a> 후 댓글을 작성할 수 있습니다.
+          </div>
+        </section>
+
+      </div>
+    </div>
+
+    <!-- 수정 모달 (작성자 본인에게만 렌더링) -->
+    <div sec:authorize="isAuthenticated()"
+         th:if="${#authentication.principal.user.userId == post.userId}"
+         id="editModal"
+         class="modal hidden">
+      <div class="modal-card">
+        <div class="modal-header">
+          <h2>게시글 수정</h2>
+          <button type="button" id="closeEditButton">×</button>
+        </div>
+
+        <form id="editForm" class="product-form">
+          <label class="row">
+            <span>카테고리</span>
+            <select id="editCategory">
+              <option value="FREE"    th:selected="${post.category == 'FREE'}">자유게시판</option>
+              <option value="LOCAL"   th:selected="${post.category == 'LOCAL'}">동네정보</option>
+              <option value="REVIEW"  th:selected="${post.category == 'REVIEW'}">거래후기</option>
+              <option value="QNA"     th:selected="${post.category == 'QNA'}">질문게시판</option>
+            </select>
+          </label>
+
+          <label class="row">
+            <span>제목</span>
+            <input type="text" id="editTitle" th:value="${post.title}" />
+          </label>
+
+          <label class="row">
+            <span>내용</span>
+            <textarea id="editContent" th:text="${post.content}"></textarea>
+          </label>
+
+          <div class="edit-image-section">
+            <span class="edit-image-label">사진</span>
+            <div id="editImageList" class="edit-image-list"></div>
+            <label class="edit-add-btn">
+              <input type="file" id="editNewImages" accept="image/*" multiple hidden />
+              + 사진 추가
+            </label>
+          </div>
+
+          <button type="submit">수정하기</button>
+        </form>
+      </div>
+    </div>
+  </th:block>
+
+  <th:block th:fragment="pageScripts">
+    <script th:inline="javascript">
+      const PAGE_IMAGES = /*[[${images}]]*/ [];
+    </script>
+    <script src="/js/community-detail.js"></script>
+  </th:block>
+</html>

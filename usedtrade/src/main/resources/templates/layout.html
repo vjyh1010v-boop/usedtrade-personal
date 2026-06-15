@@ -1,0 +1,127 @@
+<!doctype html>
+<html
+  lang="ko"
+  xmlns:th="http://www.thymeleaf.org"
+  xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+  th:fragment="layout(content, pageScripts)"
+>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <title>중고마켓</title>
+
+    <link rel="stylesheet" th:href="@{/css/style.css}" />
+  </head>
+
+  <body>
+    <!-- 공통 헤더 -->
+    <header class="site-header">
+      <div class="site-header-inner">
+        <div class="site-header-left">
+          <a th:href="@{/}" class="site-logo">중고마켓</a>
+
+          <nav class="site-nav">
+            <a th:href="@{/}">상품 목록</a>
+            <a th:href="@{/community}">커뮤니티</a>
+          </nav>
+        </div>
+
+        <div class="site-header-right">
+          <!-- 로그인/회원가입 페이지에서는 홈으로 버튼만 표시 -->
+          <th:block th:if="${authPage}">
+            <a th:href="@{/}" class="header-button black">홈으로</a>
+          </th:block>
+
+          <!-- 일반 페이지 -->
+          <th:block th:unless="${authPage}">
+            <!-- 비회원일 때 -->
+            <th:block sec:authorize="isAnonymous()">
+              <span class="header-username">비회원 님</span>
+
+              <a th:href="@{/users/join}" class="header-button blue">
+                회원가입
+              </a>
+
+              <a th:href="@{/users/login}" class="header-button black">
+                로그인
+              </a>
+            </th:block>
+
+            <!-- 로그인했을 때: 닉네임 + 햄버거 메뉴 -->
+            <th:block sec:authorize="isAuthenticated()">
+              <div class="user-profile-area">
+                <!-- 닉네임은 햄버거 메뉴 밖에 항상 표시 -->
+                <div class="user-profile-name">
+                  <strong sec:authentication="principal.nickname"
+                    >닉네임</strong
+                  >
+                  <span>님</span>
+                </div>
+
+                <!-- 클릭 토글 햄버거 메뉴 -->
+                <div class="user-menu" id="userMenu">
+                  <button
+                    type="button"
+                    class="user-menu-button"
+                    id="userMenuButton"
+                    aria-label="사용자 메뉴"
+                  >
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                  </button>
+
+                  <div class="user-menu-panel">
+                    <a th:href="@{/my/posts}" class="user-menu-item">
+                      내 판매글
+                    </a>
+
+                    <a th:href="@{/wishlist}" class="user-menu-item">
+                      찜 목록
+                    </a>
+
+                    <form
+                      th:action="@{/logout}"
+                      method="post"
+                      class="user-menu-logout-form"
+                    >
+                      <button type="submit" class="user-menu-item logout">
+                        로그아웃
+                      </button>
+                    </form>
+                  </div>
+                </div>
+              </div>
+            </th:block>
+          </th:block>
+        </div>
+      </div>
+    </header>
+
+    <main>
+      <th:block th:replace="${content}"></th:block>
+    </main>
+
+    <th:block th:replace="${pageScripts}"></th:block>
+
+    <!-- 햄버거 메뉴 클릭 토글 -->
+    <script>
+      const userMenu = document.querySelector("#userMenu");
+      const userMenuButton = document.querySelector("#userMenuButton");
+
+      if (userMenu && userMenuButton) {
+        userMenuButton.addEventListener("click", function (event) {
+          event.stopPropagation();
+          userMenu.classList.toggle("open");
+        });
+
+        document.addEventListener("click", function (event) {
+          if (!userMenu.contains(event.target)) {
+            userMenu.classList.remove("open");
+          }
+        });
+      }
+    </script>
+  </body>
+</html>

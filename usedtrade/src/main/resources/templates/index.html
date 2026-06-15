@@ -1,0 +1,212 @@
+<!doctype html>
+<html
+  lang="ko"
+  xmlns:th="http://www.thymeleaf.org"
+  xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+  th:replace="~{layout :: layout(~{::content}, ~{::pageScripts})}"
+>
+  <th:block th:fragment="content">
+    <div class="app">
+      <div class="wrap">
+        <!-- 로그인 성공 메시지 -->
+        <div
+          id="toastMsg"
+          th:if="${param.login}"
+          style="
+            position: fixed;
+            top: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: white;
+            color: #2563eb;
+            padding: 16px 32px;
+            border-radius: 8px;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+            font-weight: 600;
+            font-size: 15px;
+            z-index: 9999;
+          "
+        >
+          로그인 되었습니다.
+        </div>
+
+        <!-- 로그아웃 성공 메시지 -->
+        <div
+          id="toastMsg"
+          th:if="${param.logout}"
+          style="
+            position: fixed;
+            top: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: white;
+            color: red;
+            padding: 16px 32px;
+            border-radius: 8px;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+            font-weight: 600;
+            font-size: 15px;
+            z-index: 9999;
+          "
+        >
+          로그아웃 되었습니다.
+        </div>
+
+        <div id="marketStatus" class="status-box hidden"></div>
+
+        <section class="section-header">
+          <div>
+            <h2 id="marketPageTitle">상품 목록</h2>
+            <p class="summary">
+              <span id="marketPageSummaryText">총</span>
+              <span id="productCount">0</span>개
+            </p>
+          </div>
+
+          <form id="searchForm" class="filter-box">
+            <input
+              type="text"
+              id="keywordSearch"
+              name="keyword"
+              class="search-input"
+              placeholder="상품명, 설명, 지역 검색"
+            />
+
+            <select id="categoryFilter" name="category">
+              <option value="ALL">전체</option>
+              <option value="DIGITAL">디지털기기</option>
+              <option value="FURNITURE">가구</option>
+              <option value="CLOTHES">의류</option>
+              <option value="BOOK">도서</option>
+              <option value="ETC">기타</option>
+            </select>
+
+            <select id="sortFilter" name="sort">
+              <option value="LATEST">최신순</option>
+              <option value="PRICE_ASC">가격 낮은순</option>
+              <option value="PRICE_DESC">가격 높은순</option>
+            </select>
+          </form>
+        </section>
+
+        <section id="productList" class="product-list">
+          <p class="empty">상품을 불러오는 중...</p>
+        </section>
+
+        <div style="text-align: center; margin-top: 20px; padding-bottom: 30px">
+          <button
+            type="button"
+            id="loadMoreBtn"
+            onclick="loadMorePosts()"
+            style="
+              display: none;
+              padding: 10px 30px;
+              font-weight: bold;
+              border-radius: 5px;
+              cursor: pointer;
+              background-color: #f0f0f0;
+              border: 1px solid #ccc;
+            "
+          >
+            더보기
+          </button>
+        </div>
+
+        <!-- 비회원이 상품 등록 버튼 클릭시 로그인페이지로 리다이렉트 -->
+        <button
+          type="button"
+          id="openProductWriteButton"
+          class="upload-fab floating"
+          aria-label="상품 등록"
+          title="상품 등록"
+          th:data-authenticated="${#authorization.expression('isAuthenticated()')}"
+          th:data-login-url="@{/users/login}"
+        >
+          +
+        </button>
+      </div>
+    </div>
+
+    <div id="productWriteModal" class="modal hidden">
+      <div class="modal-card">
+        <div class="modal-header">
+          <h2>상품 등록</h2>
+          <button type="button" id="closeProductWriteButton">×</button>
+        </div>
+
+        <form id="productWriteForm" class="product-form">
+          <label class="row">
+            <span>상품명</span>
+            <input
+              type="text"
+              id="productTitle"
+              placeholder="상품명을 입력하세요"
+            />
+          </label>
+
+          <label class="row">
+            <span>가격</span>
+            <input
+              type="number"
+              id="productPrice"
+              placeholder="가격을 입력하세요"
+            />
+          </label>
+
+          <label class="row">
+            <span>카테고리</span>
+            <select id="productCategory">
+              <option value="DIGITAL">디지털기기</option>
+              <option value="FURNITURE">가구</option>
+              <option value="CLOTHES">의류</option>
+              <option value="BOOK">도서</option>
+              <option value="ETC">기타</option>
+            </select>
+          </label>
+
+          <label class="row">
+            <span>거래 지역</span>
+            <input type="text" id="tradeLocation" placeholder="예: 부산 남구" />
+          </label>
+
+          <label class="row">
+            <span>상품 설명</span>
+            <textarea
+              id="productContent"
+              placeholder="상품 설명을 입력하세요"
+            ></textarea>
+          </label>
+
+          <label class="row">
+            <span>상품 이미지</span>
+
+            <div class="image-upload-box">
+              <input type="file" id="productImages" accept="image/*" multiple />
+
+              <div id="imagePreviewList" class="image-preview-list">
+                <p class="image-preview-empty">선택된 이미지가 없습니다.</p>
+              </div>
+            </div>
+          </label>
+
+          <button type="submit">등록하기</button>
+        </form>
+      </div>
+    </div>
+  </th:block>
+
+  <th:block th:fragment="pageScripts">
+    <script>
+      const toastMsg = document.getElementById("toastMsg");
+      if (toastMsg) {
+        history.replaceState(null, "", "/");
+        setTimeout(() => {
+          toastMsg.style.transition = "opacity 1s";
+          toastMsg.style.opacity = "0";
+          setTimeout(() => toastMsg.remove(), 1000);
+        }, 1500);
+      }
+    </script>
+    <script src="/js/market.js"></script>
+  </th:block>
+</html>

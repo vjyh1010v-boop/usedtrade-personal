@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.pknu26.usedtrade.mapper.PostImageMapper">
+
+    <insert id="insertPostImage" parameterType="com.pknu26.usedtrade.dto.PostImageDTO">
+        INSERT INTO post_img (
+            image_id,
+            post_id,
+            original_name,
+            stored_name,
+            image_url,
+            is_main,
+            created_at_img
+        ) VALUES (
+            seq_image_id.NEXTVAL,
+            #{postId},
+            #{originalName},
+            #{storedName},
+            #{imageUrl},
+            #{isMain},
+            CURRENT_TIMESTAMP
+        )
+    </insert>
+
+    <insert id="insertCommunityPostImage" parameterType="com.pknu26.usedtrade.dto.PostImageDTO">
+        INSERT INTO post_img (
+            image_id,
+            post_id,
+            community_post_id,
+            original_name,
+            stored_name,
+            image_url,
+            is_main,
+            created_at_img
+        ) VALUES (
+            seq_image_id.NEXTVAL,
+            NULL,
+            #{communityPostId},
+            #{originalName},
+            #{storedName},
+            #{imageUrl},
+            #{isMain},
+            CURRENT_TIMESTAMP
+        )
+    </insert>
+
+    <select id="findImagesByCommunityPostId"
+            parameterType="long"
+            resultType="com.pknu26.usedtrade.dto.PostImageDTO">
+        SELECT
+            image_id,
+            community_post_id,
+            original_name,
+            stored_name,
+            image_url,
+            is_main,
+            created_at_img
+        FROM post_img
+        WHERE community_post_id = #{communityPostId}
+        ORDER BY image_id ASC
+    </select>
+
+    <delete id="deleteImagesByCommunityPostId" parameterType="long">
+        DELETE FROM post_img WHERE community_post_id = #{communityPostId}
+    </delete>
+
+    <select id="findImagesByPostId"
+            parameterType="long"
+            resultType="com.pknu26.usedtrade.dto.PostImageDTO">
+        SELECT
+            image_id,
+            post_id,
+            original_name,
+            stored_name,
+            image_url,
+            is_main,
+            created_at_img
+        FROM post_img
+        WHERE post_id = #{postId}
+        ORDER BY image_id ASC
+    </select>
+
+</mapper>

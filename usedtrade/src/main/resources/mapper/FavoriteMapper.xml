@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.pknu26.usedtrade.mapper.FavoriteMapper">
+
+    <!-- 찜 추가 -->
+    <insert id="insertFavorite" parameterType="com.pknu26.usedtrade.dto.FavoriteDTO">
+        INSERT INTO post_favorite (
+            favorite_id,
+            post_id,
+            user_id,
+            created_at
+        ) VALUES (
+            seq_favorite_id.NEXTVAL,
+            #{postId},
+            #{userId},
+            CURRENT_TIMESTAMP
+        )
+    </insert>
+
+    <!-- 찜 취소 -->
+    <delete id="deleteFavorite" parameterType="long">
+        DELETE FROM post_favorite
+        WHERE user_id = #{userId}
+          AND post_id = #{postId}
+    </delete>
+
+    <!-- 찜 여부 확인 -->
+    <select id="existsFavorite" resultType="int">
+        SELECT COUNT(*)
+        FROM post_favorite
+        WHERE user_id = #{userId}
+          AND post_id = #{postId}
+    </select>
+
+    <!-- 특정 게시글 찜 개수 -->
+    <select id="countFavoriteByPostId" resultType="long">
+        SELECT COUNT(*)
+        FROM post_favorite
+        WHERE post_id = #{postId}
+    </select>
+
+    <!-- 내가 찜한 상품 목록 -->
+    <select id="findFavoritePostsByUserId" resultType="com.pknu26.usedtrade.dto.PostDTO">
+        SELECT
+            p.post_id,
+            p.user_id,
+            p.buyer_id,
+            p.board_id,
+            p.title,
+            p.content_posts AS content,
+            p.price,
+            p.category,
+            p.location,
+            p.status,
+            p.view_count,
+            p.created_at_posts,
+            img.image_url AS main_image_url,
+            u.nickname AS nickname,
+
+            (
+                SELECT COUNT(*)
+                FROM post_favorite pf_count
+                WHERE pf_count.post_id = p.post_id
+            ) AS favorite_count,
+
+            1 AS favorited
+
+        FROM post_favorite pf
+        INNER JOIN posts p
+            ON pf.post_id = p.post_id
+        LEFT JOIN users u
+            ON p.user_id = u.user_id
+        LEFT JOIN post_img img
+            ON p.post_id = img.post_id
+           AND img.is_main = 'Y'
+        WHERE pf.user_id = #{userId}
+        ORDER BY pf.created_at DESC
+    </select>
+</mapper>

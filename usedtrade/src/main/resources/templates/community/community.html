@@ -1,0 +1,126 @@
+<!doctype html>
+<html
+  lang="ko"
+  xmlns:th="http://www.thymeleaf.org"
+  xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+  th:replace="~{layout :: layout(~{::content}, ~{::pageScripts})}"
+>
+  <th:block th:fragment="content">
+    <div class="app">
+      <div class="wrap">
+        <section class="section-header">
+          <div>
+            <h2>커뮤니티</h2>
+            <p class="summary">총 <span id="postCount">0</span>개</p>
+          </div>
+
+          <form id="filterForm" class="filter-box">
+            <select id="categoryFilter" name="category">
+              <option value="ALL">전체</option>
+              <option value="FREE">자유게시판</option>
+              <option value="LOCAL">동네정보</option>
+              <option value="REVIEW">거래후기</option>
+              <option value="QNA">질문게시판</option>
+            </select>
+
+            <select id="sortFilter" name="sort">
+              <option value="LATEST">최신순</option>
+              <option value="LIKES">추천순</option>
+              <option value="VIEWS">조회순</option>
+            </select>
+          </form>
+        </section>
+
+        <section id="communityPostList" class="product-list">
+          <p class="empty">게시글을 불러오는 중...</p>
+        </section>
+
+        <div class="load-more-wrap">
+          <button
+            id="loadMoreButton"
+            class="load-more-btn hidden"
+            type="button"
+          >
+            더보기
+          </button>
+        </div>
+
+        <button
+          type="button"
+          id="openCommunityWriteButton"
+          class="upload-fab floating"
+          aria-label="글쓰기"
+          title="글쓰기"
+          th:data-authenticated="${#authorization.expression('isAuthenticated()')}"
+          th:data-login-url="@{/users/login}"
+        >
+          +
+        </button>
+      </div>
+    </div>
+
+    <!-- 로그인한 사용자만 글쓰기 모달 표시 -->
+    <div
+      sec:authorize="isAuthenticated()"
+      id="communityWriteModal"
+      class="modal hidden"
+    >
+      <div class="modal-card">
+        <div class="modal-header">
+          <h2>글쓰기</h2>
+          <button type="button" id="closeCommunityWriteButton">×</button>
+        </div>
+
+        <form id="communityWriteForm" class="product-form">
+          <label class="row">
+            <span>카테고리</span>
+            <select id="communityCategory">
+              <option value="FREE">자유게시판</option>
+              <option value="LOCAL">동네정보</option>
+              <option value="REVIEW">거래후기</option>
+              <option value="QNA">질문게시판</option>
+            </select>
+          </label>
+
+          <label class="row">
+            <span>제목</span>
+            <input
+              type="text"
+              id="communityTitle"
+              placeholder="제목을 입력하세요"
+            />
+          </label>
+
+          <label class="row">
+            <span>내용</span>
+            <textarea
+              id="communityContent"
+              placeholder="내용을 입력하세요"
+            ></textarea>
+          </label>
+
+          <label class="row">
+            <span>이미지</span>
+            <div class="image-upload-box">
+              <input
+                type="file"
+                id="communityImages"
+                accept="image/*"
+                multiple
+              />
+              <div id="communityImagePreviewList" class="image-preview-list">
+                <p class="image-preview-empty">선택된 이미지가 없습니다.</p>
+              </div>
+            </div>
+          </label>
+
+          <button type="submit">등록하기</button>
+        </form>
+      </div>
+    </div>
+  </th:block>
+
+  <th:block th:fragment="pageScripts">
+    <script src="/js/community.js"></script>
+  </th:block>
+</html>

@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.pknu26.usedtrade.mapper.CommentMapper">
+
+    <insert id="insertComment" parameterType="com.pknu26.usedtrade.dto.CommentDTO">
+        <selectKey keyProperty="commentsId" resultType="long" order="BEFORE">
+            SELECT seq_comments_id.NEXTVAL FROM dual
+        </selectKey>
+        INSERT INTO comments (
+            comments_id,
+            user_id,
+            post_id,
+            community_post_id,
+            content_comments,
+            is_secret,
+            created_at_comments
+        ) VALUES (
+            #{commentsId},
+            #{userId},
+            NULL,
+            #{communityPostId},
+            #{contentComments},
+            'N',
+            CURRENT_TIMESTAMP
+        )
+    </insert>
+
+    <select id="findCommentsByCommunityPostId" parameterType="long"
+            resultType="com.pknu26.usedtrade.dto.CommentDTO">
+        SELECT
+            c.comments_id,
+            c.community_post_id,
+            c.user_id,
+            c.content_comments,
+            c.is_secret,
+            c.created_at_comments,
+            c.updated_at_comments,
+            u.nickname
+        FROM comments c
+        JOIN users u ON c.user_id = u.user_id
+        WHERE c.community_post_id = #{communityPostId}
+        ORDER BY c.created_at_comments ASC
+    </select>
+
+    <select id="findCommentById" parameterType="long"
+            resultType="com.pknu26.usedtrade.dto.CommentDTO">
+        SELECT
+            comments_id,
+            community_post_id,
+            user_id,
+            content_comments,
+            is_secret,
+            created_at_comments,
+            updated_at_comments
+        FROM comments
+        WHERE comments_id = #{commentsId}
+    </select>
+
+    <update id="updateComment" parameterType="com.pknu26.usedtrade.dto.CommentDTO">
+        UPDATE comments
+        SET content_comments    = #{contentComments},
+            updated_at_comments = CURRENT_TIMESTAMP
+        WHERE comments_id = #{commentsId}
+    </update>
+
+    <delete id="deleteComment" parameterType="long">
+        DELETE FROM comments WHERE comments_id = #{commentsId}
+    </delete>
+
+</mapper>
