@@ -1,62 +1,74 @@
-# java-miniproject-2026
-Java 웹개발자 2026 미니프로젝트1
+# 지역기반 중고거래 커뮤니티 웹사이트
 
-- 기간 : 2026.04.28 ~ 05.08 (5일간)
+Spring Boot와 MyBatis를 활용하여 개발한 지역기반 중고거래 커뮤니티 웹 애플리케이션입니다.
 
-## 프로젝트 관리 사이트
+## 프로젝트 개요
 
-- Notion : Github 연동가능. 프로젝트 작성 편리함
-- Jira : 폐쇄성 프로젝트 관리 사이트. 10명까지는 무료
-  - [https://www.atlassian.com/ko](https://www.atlassian.com/ko)
+* 개발 기간 : 2026.04.28 ~ 2026.05.08
+* 개발 인원 : 팀 프로젝트
+* 개발 환경 : Java, Spring Boot, MyBatis
 
-- Github Repository만 사용
-  - `이슈` - 팀원에게 문제점, 개발건 역할분담
-  - `위키` - 프로젝트 위키 문서 생성
-  - ~~액션~~ - 프로젝트 소스 자동 배포 등
-  - `프로젝트` - 보통 칸반을 사용, 이슈 탭에 작성한 이슈들이 바로 디스플레이
+## 프로젝트 소개
 
-- Branch 로컬 리포지토리로 클론은 명령어 추천
+사용자들이 지역 기반으로 중고 물품을 거래하고 커뮤니티 활동을 할 수 있는 웹 서비스입니다.
 
-  ```powershell
-  > git clone --branch [브랜치명] [브랜치존재하는_깃허브리포지토리_주소]
-  ```
+## 주요 기능
 
-- Github 저장소 종류
-  - main : 배포용 완성된 리포지토리
-  - branch : 개발용(팀의 경우 각자 개발하는 리포지토리)
+* 회원가입
+* 로그인
+* 상품 등록 및 조회
+* 게시글 작성 및 조회
+* 댓글 기능
+* 판매 상태 관리
 
-- Branch 생성 작업 후 합치는 방법
-  1. main ▼ 클릭 > View all branches 선택
-  2. New branch 클릭 이름 적고 생성
-  3. 각자 작업(같은 소스를 건드리는 작업 피할 것)
-  4. Pull requests > New Pull request
-  5. 충돌발생 시 직접 소스해결 Resolve
-  6. Create Pull request 진행
-  7. Branch 작업 완료 후 branch 삭제버튼 생성 > 클릭하면 branch 리포지토리 삭제됨
-  8. View all branches에서 수동 삭제 가능
+## 내가 담당한 부분
 
-## 요구사항 정의
+### 게시판 사용성 개선
 
-[링크](./docs/PRD.md)
+* 게시글 정렬 기능 수정
+* 스크롤 기반 추가 데이터 로딩 기능 구현
+* 사용자 경험 개선을 위한 화면 동작 수정
 
-## DB 설계
+### 화면 이동 기능 구현
 
-[링크](./docs/DB.md)
+* 로그인 페이지 이동 처리
+* 회원가입 페이지 이동 처리
+* 화면 간 네비게이션 연결
 
-## 화면 설계
+## 기술 스택
 
-[링크](./docs/Design.md)
+### Backend
 
-### (임시) 미니 프로젝트 주제
+* Java
+* Spring Boot
+* MyBatis
 
- 중고거래 플랫폼
-  - 게시판을 변형, 이미지가 리스트에 나오도록
-  - 상품등록(이미지), 가격/카테고리, 판매상태, 댓글
+### Database
 
- 커뮤니티 + 거래결합형
-  - 자유게시판 + 거래게시판
-  - 댓글/좋아요~
+* Oracle Database
 
-  
+### Frontend
 
-https://github.com/JHJH1289/jhdrve 참고용!
+* HTML
+* CSS
+* JavaScript
+
+### Collaboration
+
+* Git
+* GitHub
+
+## 프로젝트를 통해 배운 점
+
+* GitHub를 활용한 협업 방식 경험
+* Spring Boot 프로젝트 구조 이해
+* MyBatis 기반 데이터 처리 방식 학습
+* 웹 애플리케이션의 화면 흐름 설계 경험
+
+## 향후 개선 계획
+
+* JWT 로그인 적용
+* Docker 환경 구성
+* AWS 배포
+* 검색 기능 추가
+* 실시간 채팅 기능 추가
